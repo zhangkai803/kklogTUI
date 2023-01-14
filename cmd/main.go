@@ -223,7 +223,7 @@ func (m model) View() string {
 	case constant.StateDispLog:
 		m.clearChoices()
 		s = fmt.Sprintf(
-			"Your choices is :\n\n[%s] [%s] [%s] [%s] [%s]",
+			"Your choices is :\n\n[%s] [%s] [%s] [%s] [%s]\n\nPress Enter to show log.",
 			m.selectedEnv.String(),
 			m.selectedNs.String(),
 			m.selectedDeployment.String(),
@@ -247,7 +247,7 @@ func (m model) View() string {
 		m.state = constant.StateChooseNsp
 	}
 
-	s += "\n\n"
+	s += "\n"
 
     // The footer
     s += "\nPress q to quit.\n"

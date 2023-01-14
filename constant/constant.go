@@ -16,33 +16,32 @@ var (
 )
 
 // 环境区分
-var Envs = []*dto.Env{
-	{Name:  "dev", Alias: "测试环境"},
-	{Name:  "prod", Alias: "生产环境"},
-}
+var envDevelopemt 	= &dto.Env{Name:  "dev", Alias: "测试环境"}
+var envProduction 	= &dto.Env{Name:  "prod", Alias: "生产环境"}
+var Envs			= []*dto.Env{envDevelopemt, envProduction}
 
 var (
-	// 测试环境命名空间
+	// 测试环境命名空间 组成 slice 供选择
 	DevNsSlice = []*dto.Namespace{
-		{Env: Envs[0], Name: "sit",  Alias: "默认测试环境"},
-		{Env: Envs[0], Name: "dev1", Alias: "开发测试环境1"},
-		{Env: Envs[0], Name: "dev2", Alias: "开发测试环境2"},
-		{Env: Envs[0], Name: "dev3", Alias: "开发测试环境3"},
-		{Env: Envs[0], Name: "dev4", Alias: "开发测试环境4"},
-		{Env: Envs[0], Name: "dev5", Alias: "开发测试环境5"},
+		{Env: envDevelopemt, Name: "sit",  Alias: "默认测试环境"},
+		{Env: envDevelopemt, Name: "dev1", Alias: "开发测试环境1"},
+		{Env: envDevelopemt, Name: "dev2", Alias: "开发测试环境2"},
+		{Env: envDevelopemt, Name: "dev3", Alias: "开发测试环境3"},
+		{Env: envDevelopemt, Name: "dev4", Alias: "开发测试环境4"},
+		{Env: envDevelopemt, Name: "dev5", Alias: "开发测试环境5"},
 	}
 
-	// 生产命名空间
-	prodNsCore = 		&dto.Namespace{Env: Envs[1], Name: "core", 		 Alias: "core"}
-	prodNsIProd = 		&dto.Namespace{Env: Envs[1], Name: "iprod", 	 Alias: "iprod"}
-	prodNsProductioin = &dto.Namespace{Env: Envs[1], Name: "production", Alias: "production"}
+	// 生产命名空间 单独声明绑定到 deployment 上 不需要选择
+	prodNsCore			= &dto.Namespace{Env: envProduction, Name: "core", 		Alias: "core"}
+	prodNsIProd			= &dto.Namespace{Env: envProduction, Name: "iprod", 	 	Alias: "iprod"}
+	prodNsProductioin	= &dto.Namespace{Env: envProduction, Name: "production", 	Alias: "production"}
 )
 
 // Deployment 项目列表
 var (
 	depWTM = &dto.Deployment{ProdNamespace: prodNsIProd, 	Name: "wk-tag-manage", 		Alias: "标签管理系统"}
-	depCMS = &dto.Deployment{ProdNamespace: prodNsIProd, 	Name: "wk-miniprogram-cms",	Alias: "抖快小程序"}
-	depTIC = &dto.Deployment{ProdNamespace: prodNsCore, 	Name: "wk-tic", 			Alias: "视频直播项目"}
+	depCMS = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "wk-miniprogram-cms",	Alias: "抖快小程序"}
+	depTIC = &dto.Deployment{ProdNamespace: prodNsCore,		Name: "wk-tic", 			Alias: "视频直播项目"}
 )
 
 // Pod 服务类型
