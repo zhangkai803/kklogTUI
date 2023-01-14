@@ -21,3 +21,34 @@ kklog 的终端用户界面，可视化生成查看日志的命令，配合 [kkl
 ```sh
 /usr/local/bin/kklog -d wk-miniprogram-cms -e dev -n wk-miniprogram-cms -ns sit -t api -l 500 2> /tmp/kklog_grep_buf_`date +%s` | tail -f /tmp/kklog_grep_buf_`date +%s`
 ```
+
+## 使用
+
+- 拉项目
+- 安装
+
+    ```sh
+    make
+    make install
+    ```
+
+- 执行
+
+    ```sh
+    kklogTUI
+    ```
+
+## 开发
+
+- 拉项目
+- 装环境 [当前版本 go==1.18]
+
+    ```sh
+    go mod tidy
+    ```
+
+- 启动
+
+    ```sh
+    make run
+    ```
