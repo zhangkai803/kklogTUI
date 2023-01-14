@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"kklogTUI/constant"
+	"kklogTUI/dto"
+	"kklogTUI/utils"
 	"log"
 	"os"
 	"os/exec"
@@ -9,76 +12,76 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type State int
-type Choices []string
-type logFinishMsg struct {err error}
-
 var (
-	StateChooseNul State = 0
-	StateChooseEnv State = 1
-	StateChooseDep State = 2
-	StateChoosePod State = 3
-	StateChooseNsp State = 4
-	StateChooseTyp State = 5
-	StateDispLog   State = 6
-
-	DeploymentPodsMap map[string]Choices = map[string]Choices{
-		"wk-tag-manage": {
-			"wk-tag-manage",
-		},
-		"wk-miniprogram-cms": {
-			"wk-miniprogram-cms",
-			"wk-miniprogram-cms-async-task",
-		},
-	}
-	EnvNamespacesMap map[string]Choices = map[string]Choices{
-		"dev": {"sit", "dev1"},
-		"prod": {"production", "iprod"},
-	}
-	ChoicesPodTypes 	Choices = Choices{"api", "script"}
-	ChoicesDeployments	Choices = Choices{}
-	ChoicesEnv 			Choices = Choices{}
-	ChoicesNul 			Choices = Choices{}
+	Deployments 		[]*dto.Deployment = []*dto.Deployment{}
+	DeploymentPodsMap   map[string][]*dto.Pod = map[string][]*dto.Pod{}
 )
 
 func init() {
 	tea.LogToFile("./tea.debug.log", "debug")
 	log.Println("-------------------------------------------------------------")
 
-	for k := range DeploymentPodsMap {
-		ChoicesDeployments = append(ChoicesDeployments, k)
-	}
-	for k := range EnvNamespacesMap {
-		ChoicesEnv = append(ChoicesEnv, k)
+	deploymentSet := utils.NewSet[*dto.Deployment]()
+
+	for i := range constant.Pods {
+		pod := constant.Pods[i]
+		deploymentSet.Add(pod.Deployment)
+		DeploymentPodsMap[pod.Deployment.Name] = append(DeploymentPodsMap[pod.Deployment.Name], pod)
 	}
 
-	// log.Println(ChoicesEnv)
-	// log.Println(ChoicesDeployments)
-	// log.Println(ChoicesPodTypes)
-	// log.Panicln(ChoicesEnv)
-	// log.Panicln(ChoicesEnv)
+	for i := range deploymentSet.Elems() {
+		Deployments = append(Deployments, i)
+	}
 }
 
 type model struct {
-	state	 			State
+	selectedEnv 		*dto.Env
+	selectedDeployment 	*dto.Deployment
+	selectedPod 		*dto.Pod
+	selectedNs  		*dto.Namespace
 
-	selectedEnv 		string
-	selectedNs  		string
-	selectedDeployment 	string
-	selectedPod 		string
-	selectedPodType 	string
-
-	choices  			Choices			// items on the to-do list
-    cursor   			int             // which to-do list item our cursor is pointing at
-	selectedIdx 		int
+	state	 			dto.State
+	choices  			dto.Choices
+    cursor   			int
 }
 
 func initialModel() model {
 	return model{
-		state:    StateChooseEnv,
-		choices: Choices{},
-		selectedIdx: -1,
-		cursor:   0,
+		state:    		constant.StateChooseEnv,
+		choices: 		dto.Choices{},
+		cursor:   		0,
+	}
+}
+
+func (m *model) clearChoices() {
+	m.choices = constant.ChoicesEmpty
+}
+
+func (m *model) setChoicesEnv() {
+	m.clearChoices()
+	for _, v := range constant.Envs {
+		m.choices = append(m.choices, v.String())
+	}
+}
+
+func (m *model) setChoicesDep() {
+	m.clearChoices()
+	for i := range Deployments {
+		m.choices = append(m.choices, Deployments[i].String())
+	}
+}
+
+func (m *model) setChoicesPod() {
+	m.clearChoices()
+	for i := range DeploymentPodsMap[m.selectedDeployment.Name] {
+		m.choices = append(m.choices, DeploymentPodsMap[m.selectedDeployment.Name][i].String())
+	}
+}
+
+func (m *model) setChoicesNsp() {
+	m.clearChoices()
+	for i := range constant.DevNsSlice {
+		m.choices = append(m.choices, constant.DevNsSlice[i].String())
 	}
 }
 
@@ -86,15 +89,15 @@ func (m model) dispalyLog() tea.Cmd {
 	cmd := exec.Command(
 		"kklog",
 		"-d",
-		m.selectedDeployment,
+		m.selectedDeployment.Name,
 		"-e",
-		m.selectedEnv,
+		m.selectedEnv.Name,
 		"-n",
-		m.selectedPod,
+		m.selectedPod.Name,
 		"-ns",
-		m.selectedNs,
+		m.selectedNs.Name,
 		"-t",
-		m.selectedPodType,
+		string(m.selectedPod.Type),
 		"-l",
 		"500",
 		"2>",
@@ -107,7 +110,7 @@ func (m model) dispalyLog() tea.Cmd {
 	fmt.Printf("cmd: %v\n", cmd.String())
 
 	return tea.ExecProcess(cmd, func(err error) tea.Msg {
-		return logFinishMsg{err: err}
+		return dto.LogFinishMsg{Err: err}
 	})
 }
 
@@ -118,16 +121,14 @@ func (m model) Init() tea.Cmd {
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	log.Printf("Current State: %d", m.state)
 	switch m.state {
-	case StateChooseEnv:
-		m.choices = ChoicesEnv
-	case StateChooseNsp:
-		m.choices = EnvNamespacesMap[m.selectedEnv]
-	case StateChooseDep:
-		m.choices = ChoicesDeployments
-	case StateChoosePod:
-		m.choices = DeploymentPodsMap[m.selectedDeployment]
-	case StateChooseTyp:
-		m.choices = ChoicesPodTypes
+	case constant.StateChooseEnv:
+		m.setChoicesEnv()
+	case constant.StateChooseDep:
+		m.setChoicesDep()
+	case constant.StateChoosePod:
+		m.setChoicesPod()
+	case constant.StateChooseNsp:
+		m.setChoicesNsp()
 	}
 
     switch msg := msg.(type) {
@@ -158,48 +159,47 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         // the selected state for the item that the cursor is pointing at.
         case "enter", " ":
 			switch m.state {
-			case StateChooseEnv:
-				m.selectedEnv = ChoicesEnv[m.cursor]
+			case constant.StateChooseEnv:
+				m.selectedEnv = constant.Envs[m.cursor]
+				m.state = constant.StateChooseDep
 				log.Printf("m.selectedEnv: %v\n", m.selectedEnv)
-				m.state = StateChooseNsp
-			case StateChooseNsp:
-				m.selectedNs = EnvNamespacesMap[m.selectedEnv][m.cursor]
-				log.Printf("m.selectedNs: %v\n", m.selectedNs)
-				m.state = StateChooseDep
-			case StateChooseDep:
-				m.selectedDeployment = ChoicesDeployments[m.cursor]
+			case constant.StateChooseDep:
+				m.selectedDeployment = Deployments[m.cursor]
+				m.state = constant.StateChoosePod
 				log.Printf("m.selectedDeployment: %v\n", m.selectedDeployment)
-				m.state = StateChoosePod
-			case StateChoosePod:
-				m.selectedPod = DeploymentPodsMap[m.selectedDeployment][m.cursor]
+			case constant.StateChoosePod:
+				m.selectedPod = DeploymentPodsMap[m.selectedDeployment.Name][m.cursor]
+				if m.selectedEnv.IsProd() {
+					m.state = constant.StateDispLog
+					m.selectedNs = m.selectedPod.Deployment.ProdNamespace
+				} else {
+					m.state = constant.StateChooseNsp
+				}
 				log.Printf("m.selectedPod: %v\n", m.selectedPod)
-				m.state = StateChooseTyp
-			case StateChooseTyp:
-				m.selectedPodType = ChoicesPodTypes[m.cursor]
-				log.Printf("m.selectedPodType: %v\n", m.selectedPodType)
-				m.state = StateDispLog
-			case StateDispLog:
+			case constant.StateChooseNsp:
+				m.selectedNs = constant.DevNsSlice[m.cursor]
+				m.state = constant.StateDispLog
+				log.Printf("m.selectedNs: %v\n", m.selectedNs)
+			case constant.StateDispLog:
 				fmt.Printf(
 					"Your choices is :\n\n[%s] [%s] [%s] [%s] [%s]\n\n",
-					m.selectedEnv,
-					m.selectedNs,
-					m.selectedDeployment,
-					m.selectedPod,
-					m.selectedPodType,
+					m.selectedEnv.String(),
+					m.selectedNs.String(),
+					m.selectedDeployment.String(),
+					m.selectedPod.String(),
+					m.selectedPod.Type,
 				)
 				return m, m.dispalyLog()
 			}
-
+			m.cursor = 0
         }
-	case logFinishMsg:
-		if msg.err != nil {
-			log.Printf("err: %s", msg.err.Error())
+	case dto.LogFinishMsg:
+		if msg.Err != nil {
+			log.Printf("err: %s", msg.Err.Error())
 		}
 		return m, tea.Quit
     }
 
-    // Return the updated model to the Bubble Tea runtime for processing.
-    // Note that we're not returning a command.
     return m, nil
 }
 
@@ -208,30 +208,27 @@ func (m model) View() string {
     s := ""
 
 	switch m.state {
-	case StateChooseEnv:
-		m.choices = ChoicesEnv
+	case constant.StateChooseEnv:
+		m.setChoicesEnv()
 		s = "Choose Env:\n\n"
-	case StateChooseNsp:
-		m.choices = EnvNamespacesMap[m.selectedEnv]
-		s = "Choose Namespace:\n\n"
-	case StateChooseDep:
-		m.choices = ChoicesDeployments
+	case constant.StateChooseDep:
+		m.setChoicesDep()
 		s = "Choose Deployment:\n\n"
-	case StateChoosePod:
-		m.choices = DeploymentPodsMap[m.selectedDeployment]
+	case constant.StateChoosePod:
+		m.setChoicesPod()
 		s = "Choose Pod:\n\n"
-	case StateChooseTyp:
-		m.choices = ChoicesPodTypes
-		s = "Choose Pod Type:\n\n"
-	case StateDispLog:
-		m.choices = ChoicesNul
+	case constant.StateChooseNsp:
+		m.setChoicesNsp()
+		s = "Choose Namespace:\n\n"
+	case constant.StateDispLog:
+		m.clearChoices()
 		s = fmt.Sprintf(
 			"Your choices is :\n\n[%s] [%s] [%s] [%s] [%s]",
-			m.selectedEnv,
-			m.selectedNs,
-			m.selectedDeployment,
-			m.selectedPod,
-			m.selectedPodType,
+			m.selectedEnv.String(),
+			m.selectedNs.String(),
+			m.selectedDeployment.String(),
+			m.selectedPod.String(),
+			m.selectedPod.Type,
 		)
 	}
 
@@ -247,7 +244,7 @@ func (m model) View() string {
 		s += m.choices[i]
 		s += "\n"
 
-		m.state = StateChooseNsp
+		m.state = constant.StateChooseNsp
 	}
 
 	s += "\n\n"

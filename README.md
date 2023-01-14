@@ -38,6 +38,10 @@ kklog 的终端用户界面，可视化生成查看日志的命令，配合 [kkl
     kklogTUI
     ```
 
+## 新增项目
+
+配置于 `constant/constant.go`，修改请提 PR
+
 ## 开发
 
 - 拉项目
