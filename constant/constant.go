@@ -43,6 +43,7 @@ var (
 	depCMS = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "wk-miniprogram-cms",	Alias: "抖快小程序"}
 	depTIC = &dto.Deployment{ProdNamespace: prodNsCore,		Name: "wk-tic", 			Alias: "视频直播项目"}
 	depWCA = &dto.Deployment{ProdNamespace: prodNsCore,		Name: "wk-content-apis", 	Alias: "【旧】【外部】内容管理系统"}
+	depWCB = &dto.Deployment{ProdNamespace: prodNsCore,		Name: "wk-ms-callback", 	Alias: "回调系统"}
 )
 
 // Pod 服务类型
@@ -58,4 +59,5 @@ var Pods = []*dto.Pod{
 	{Type: podTypeAPI, 		Deployment: depCMS, Name: depCMS.Name, 								Alias: "API服务"},
 	{Type: podTypeScript, 	Deployment: depCMS, Name: "wk-miniprogram-cms-async-task", 			Alias: "异步任务消费脚本"},
 	{Type: podTypeAPI, 		Deployment: depWCA, Name: depWCA.Name, 								Alias: "API服务"},
+	{Type: podTypeAPI,		Deployment: depWCB, Name: depWCB.Name, 								Alias: "API服务"},
 }
