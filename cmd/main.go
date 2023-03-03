@@ -189,6 +189,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.selectedPod.String(),
 					m.selectedPod.Type,
 				)
+				m.state = constant.StateChooseNul
 				return m, m.dispalyLog()
 			}
 			m.cursor = 0
@@ -208,6 +209,8 @@ func (m model) View() string {
     s := ""
 
 	switch m.state {
+	case constant.StateChooseNul:
+		return ""
 	case constant.StateChooseEnv:
 		m.setChoicesEnv()
 		s = "Choose Env:\n\n"
