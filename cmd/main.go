@@ -88,6 +88,8 @@ func (m *model) setChoicesNsp() {
 func (m model) dispalyLog() tea.Cmd {
 	cmd := exec.Command(
 		"kklog",
+		"-p",
+		m.selectedDeployment.Project,
 		"-d",
 		m.selectedDeployment.Name,
 		"-e",

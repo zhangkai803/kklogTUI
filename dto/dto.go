@@ -29,13 +29,23 @@ func (ns Namespace) String() string {
 }
 
 type Deployment struct {
+	Project string
 	ProdNamespace *Namespace
 	Name string
 	Alias string
 }
 
+func NewDeployment(ns *Namespace, name string, alias string, project string) *Deployment {
+	return &Deployment{
+		Project:       project,
+		ProdNamespace: ns,
+		Name:          name,
+		Alias:         alias,
+	}
+}
+
 func (d Deployment) String() string {
-	return d.Alias + " - " + d.Name
+	return d.Project + " - " +  d.Alias + " - " + d.Name
 }
 
 type Pod struct {

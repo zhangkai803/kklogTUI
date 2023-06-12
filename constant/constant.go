@@ -15,9 +15,13 @@ var (
 	ChoicesEmpty   dto.Choices = dto.Choices{}
 )
 
+// 项目
+var ProjDayou = "dayou"
+var ProjWeike = "weike"
+
 // 环境区分
-var envDevelopemt 	= &dto.Env{Name:  "dev", Alias: "测试环境"}
-var envProduction 	= &dto.Env{Name:  "prod", Alias: "生产环境"}
+var envDevelopemt 	= &dto.Env{Name:  "dev", 	Alias: "测试环境"}
+var envProduction 	= &dto.Env{Name:  "prod", 	Alias: "生产环境"}
 var Envs			= []*dto.Env{envDevelopemt, envProduction}
 
 var (
@@ -32,20 +36,21 @@ var (
 	}
 
 	// 生产命名空间 单独声明绑定到 deployment 上 不需要选择
-	prodNsCore			= &dto.Namespace{Env: envProduction, Name: "core", 		Alias: "core"}
+	prodNsCore			= &dto.Namespace{Env: envProduction, Name: "core", 			Alias: "core"}
 	prodNsIProd			= &dto.Namespace{Env: envProduction, Name: "iprod", 	 	Alias: "iprod"}
 	prodNsProductioin	= &dto.Namespace{Env: envProduction, Name: "production", 	Alias: "production"}
 )
 
 // Deployment 项目列表
 var (
-	depWTM = &dto.Deployment{ProdNamespace: prodNsIProd, 	Name: "wk-tag-manage", 		Alias: "标签管理系统"}
-	depCMS = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "wk-miniprogram-cms",	Alias: "抖快小程序"}
-	depTIC = &dto.Deployment{ProdNamespace: prodNsCore,		Name: "wk-tic", 			Alias: "视频直播项目"}
-	depWCA = &dto.Deployment{ProdNamespace: prodNsCore,		Name: "wk-content-apis", 	Alias: "【旧】【外部】内容管理系统"}
-	depWCB = &dto.Deployment{ProdNamespace: prodNsCore,		Name: "wk-ms-callback", 	Alias: "回调系统"}
-	depWF  = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "wk-form",			Alias: "表单系统"}
-	depWR  = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "wk-risk",			Alias: "风控系统"}
+	depWTM = &dto.Deployment{ProdNamespace: prodNsIProd, 	Name: "wk-tag-manage", 		Alias: "标签管理系统",				Project: ProjWeike}
+	depCMS = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "wk-miniprogram-cms",	Alias: "抖快小程序",				Project: ProjWeike}
+	depTIC = &dto.Deployment{ProdNamespace: prodNsCore,		Name: "wk-tic",				Alias: "视频直播项目",				Project: ProjWeike}
+	depWCA = &dto.Deployment{ProdNamespace: prodNsCore,		Name: "wk-content-apis", 	Alias: "[旧][外部]内容管理系统",	Project: ProjWeike}
+	depWCB = &dto.Deployment{ProdNamespace: prodNsCore,		Name: "wk-ms-callback", 	Alias: "回调系统", 					Project: ProjWeike}
+	depWF  = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "wk-form",			Alias: "表单系统", 					Project: ProjWeike}
+	depWR  = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "wk-risk",			Alias: "风控系统",					Project: ProjWeike}
+	depFC  = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "forecast",			Alias: "测算后端",					Project: ProjDayou}
 )
 
 // Pod 服务类型
@@ -64,4 +69,5 @@ var Pods = []*dto.Pod{
 	{Type: podTypeAPI,		Deployment: depWCB, Name: depWCB.Name, 								Alias: "API服务"},
 	{Type: podTypeAPI,		Deployment: depWF,	Name: depWF.Name, 								Alias: "API服务"},
 	{Type: podTypeAPI,		Deployment: depWR,	Name: depWR.Name, 								Alias: "API服务"},
+	{Type: podTypeAPI,		Deployment: depFC,	Name: depFC.Name, 								Alias: "API服务"},
 }
