@@ -39,6 +39,7 @@ var (
 	prodNsCore			= &dto.Namespace{Env: envProduction, Name: "core", 			Alias: "core"}
 	prodNsIProd			= &dto.Namespace{Env: envProduction, Name: "iprod", 	 	Alias: "iprod"}
 	prodNsProductioin	= &dto.Namespace{Env: envProduction, Name: "production", 	Alias: "production"}
+	prodNsMainWeike		= &dto.Namespace{Env: envProduction, Name: "main-weike", 	Alias: "main-weike"}
 )
 
 // Deployment 项目列表
@@ -51,6 +52,7 @@ var (
 	depWF  = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "wk-form",			Alias: "表单系统", 					Project: ProjWeike}
 	depWR  = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "wk-risk",			Alias: "风控系统",					Project: ProjWeike}
 	depFC  = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "forecast",			Alias: "测算后端",					Project: ProjDayou}
+	depWK  = &dto.Deployment{ProdNamespace: prodNsMainWeike,Name: "main-weike",			Alias: "主站",						Project: ProjWeike}
 )
 
 // Pod 服务类型
@@ -70,4 +72,5 @@ var Pods = []*dto.Pod{
 	{Type: podTypeAPI,		Deployment: depWF,	Name: depWF.Name, 								Alias: "API服务"},
 	{Type: podTypeAPI,		Deployment: depWR,	Name: depWR.Name, 								Alias: "API服务"},
 	{Type: podTypeAPI,		Deployment: depFC,	Name: depFC.Name, 								Alias: "API服务"},
+	{Type: podTypeAPI,		Deployment: depWK,	Name: depWK.Name, 								Alias: "API服务"},
 }
