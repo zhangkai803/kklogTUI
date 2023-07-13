@@ -48,6 +48,7 @@ var (
 	depCMS = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "wk-miniprogram-cms",	Alias: "抖快小程序",				Project: ProjWeike}
 	depTIC = &dto.Deployment{ProdNamespace: prodNsCore,		Name: "wk-tic",				Alias: "视频直播项目",				Project: ProjWeike}
 	depWCA = &dto.Deployment{ProdNamespace: prodNsCore,		Name: "wk-content-apis", 	Alias: "[旧][外部]内容管理系统",	Project: ProjWeike}
+	depWCM = &dto.Deployment{ProdNamespace: prodNsCore,		Name: "wk-content-manager", Alias: "[新]内容管理系统",			Project: ProjWeike}
 	depWCB = &dto.Deployment{ProdNamespace: prodNsCore,		Name: "wk-ms-callback", 	Alias: "回调系统", 					Project: ProjWeike}
 	depWF  = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "wk-form",			Alias: "表单系统", 					Project: ProjWeike}
 	depWR  = &dto.Deployment{ProdNamespace: prodNsIProd,	Name: "wk-risk",			Alias: "风控系统",					Project: ProjWeike}
@@ -73,4 +74,5 @@ var Pods = []*dto.Pod{
 	{Type: podTypeAPI,		Deployment: depWR,	Name: depWR.Name, 								Alias: "API服务"},
 	{Type: podTypeAPI,		Deployment: depFC,	Name: depFC.Name, 								Alias: "API服务"},
 	{Type: podTypeAPI,		Deployment: depWK,	Name: depWK.Name, 								Alias: "API服务"},
+	{Type: podTypeAPI,		Deployment: depWCM,	Name: depWCM.Name, 								Alias: "API服务"},
 }
